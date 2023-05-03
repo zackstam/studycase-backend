@@ -7,8 +7,8 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 const HttpError = require('./interface/httpError');
+const { response } = require('./middleware/responseMiddleware'); 
 var indexRouter = require('./routes/index');
-
 
 var app = express();
 
@@ -34,13 +34,15 @@ app.use((req, res, next) => {
   const error = new HttpError(PATH_NOT_FOUND, NOT_FOUND, NOT_FOUND_PATH);
   throw error;
 })
+
 app.use((error, req, res, next) => {
   if (req.data) next();
   if (res.headerSent) {
     return next(error);
   }
   res.status(error.status || ERROR_SERVER).json({ message : error.message, code: error.code });
-})
+});
+
 app.use(response)
 
 module.exports = app;
